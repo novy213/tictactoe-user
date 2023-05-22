@@ -18,12 +18,247 @@ namespace tictactoe
         private const string API_ENDPOINT_LOGIN = "/";
         private const string API_ENDPOINT_REGISTER = "/register";
         private const string API_ENDPOINT_GET_GAMES = "/game";
+        private const string API_ENDPOINT_USERS = "/users";
+        private const string API_ENDPOINT_CREATE_GAME = "/game";
+        private const string API_ENDPOINT_GET_GAME_INFO = "/game/user";
+        private const string API_ENDPOINT_ABORT_GAME = "/game/abort";
+        private const string API_ENDPOINT_JOIN_GAME = "/game/";
+        private const string API_ENDPOINT_SEND_MOVE = "/game/";
+        private const string API_ENDPOINT_RECIVE_MOVE = "/game/";
 
         private const int HTTP_STATUS_OK = 200;
         private const int HTTP_STATUS_UNAUTHORIZED = 401;
 
         private static String Message;
+        public static async Task<ReciveMoveResponse> ReciveMovesAsync()
+        {
+            ReciveMoveResponse response;
+            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_RECIVE_MOVE);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new ReciveMoveResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<ReciveMoveResponse>(rawResponse.Body);
+                }
 
+            }
+            catch (Exception)
+            {
+                response = new ReciveMoveResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<APIResponse> SendMoveAsync(string Move)
+        {
+            APIResponse response;
+            SendMoveRequest request = new SendMoveRequest
+            {
+                Move = Move
+            };
+            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_SEND_MOVE).body<SendMoveRequest>(request);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new APIResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<APIResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new APIResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<APIResponse> JoinGameAsync(int GameId)
+        {
+            APIResponse response;
+            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_JOIN_GAME + GameId);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new APIResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<APIResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new APIResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<APIResponse> AbortGameAsync()
+        {
+            APIResponse response;
+            HttpRequest req = Unirest.delete(Settings.Default.url + API_ENDPOINT_ABORT_GAME);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new APIResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<APIResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new APIResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<GetGameInfoResponse> GetGameInfoAsync()
+        {
+            GetGameInfoResponse response;
+            HttpRequest req = Unirest.get(Settings.Default.url + API_ENDPOINT_GET_GAME_INFO);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new GetGameInfoResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<GetGameInfoResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new GetGameInfoResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+
+        public static async Task<APIResponse> CreateGameAsync(string Name, int Invited_player, bool Is_password, string Password)
+        {
+            APIResponse response;
+            CreateGameRequest createGameRequest = new CreateGameRequest
+            {
+                Name=Name,
+                Invited_player=Invited_player == 0?null:Invited_player,
+                Is_password=Is_password == true ? 1 : 0,
+                Password=Password,
+            };
+            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_CREATE_GAME).body<CreateGameRequest>(createGameRequest);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new APIResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<APIResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new APIResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<GetUsersResponse> GetUsersAsync()
+        {
+            GetUsersResponse response;
+            HttpRequest req = Unirest.get(Settings.Default.url + API_ENDPOINT_USERS);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new GetUsersResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<GetUsersResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new GetUsersResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
         public static async Task<GetGamesResponse> GetGamesAsync()
         {
             GetGamesResponse response;

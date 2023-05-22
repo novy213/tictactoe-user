@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using tictactoe.models;
 
 namespace tictactoe
 {
@@ -19,9 +20,46 @@ namespace tictactoe
     /// </summary>
     public partial class CreateNewGame : Window
     {
+        public User invitedUser = new User();
+
         public CreateNewGame()
         {
             InitializeComponent();
+        }
+
+        private void InvitePlayer_click(object sender, RoutedEventArgs e)
+        {
+            InvitePlayer invitePlayer = new InvitePlayer { Owner = this };
+            if (invitePlayer.ShowDialog() == true)
+            {
+                invitedUser = invitePlayer.PlayerListView.SelectedItem as User;
+                InvitedPlayer.Text = invitedUser.Name + " " + invitedUser.Last_name;
+            }
+        }
+
+        private void CreateGameIsPassword_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = sender as CheckBox;
+            if (checkBox.IsChecked == true)
+            {
+                GamePas.Visibility = Visibility.Visible;
+                CreateGamePassword.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                GamePas.Visibility = Visibility.Collapsed;
+                CreateGamePassword.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void Create_click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
+
+        private void Cancel_click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
         }
     }
 }

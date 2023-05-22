@@ -1,11 +1,11 @@
-﻿<Window x:Class="tictactoe.CreateNewGame"
+﻿<Window x:Class="tictactoe.InvitePlayer"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:tictactoe"
         mc:Ignorable="d"
-        Title="CreateNewGame" Height="450" Width="300"
+        Title="InvitePlayer" Height="300" Width="200"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
@@ -109,28 +109,21 @@
         </Style>
     </Window.Resources>
     <Grid Background="LightBlue">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="0.3*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="0.3*"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Create new game" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30" FontWeight="Bold" Margin="0 30"/>
-        <TextBox Style="{DynamicResource TextBoxStyle1}" x:Name="CreateGameName" Grid.Row="1" VerticalAlignment="Center" Padding="7" Width="120" Grid.Column="1" Margin="0 20"/>
-        <TextBlock Text="Game name" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
-        <CheckBox x:Name="CreateGameIsPassword" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15 0" Click="CreateGameIsPassword_Click"/>
-        <TextBlock Grid.Row="2" Text="Is password" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20"/>
-        <TextBox Visibility="Collapsed" Style="{DynamicResource TextBoxStyle1}" x:Name="CreateGamePassword" Grid.Row="3" VerticalAlignment="Center" Padding="7" Width="120" Grid.Column="1"/>
-        <TextBlock Visibility="Collapsed" x:Name="GamePas" Text="Game password" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16" Margin="0 20"/>
-        <Button Content="Invite player" Grid.Row="4" Width="120" Height="40" Margin="0 10" Click="InvitePlayer_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
-        <TextBlock FontWeight="Bold" x:Name="InvitedPlayer" Grid.Row="4" Grid.Column="1" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button IsDefault="True" Content="Create" Grid.Row="5" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="Create_click"/>
-        <Button IsCancel="False" Content="Cancel" Grid.Row="5" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Grid.Column="1" Click="Cancel_click"/>
+        <TextBox x:Name="Filter" Width="150" Padding="7" VerticalAlignment="Center" FontSize="16" TextChanged="Filter_TextChanged"/>
+        <ListView x:Name="PlayerListView" Grid.Row="1" Margin="4" SelectionMode="Single">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Last_name}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button Style="{DynamicResource ButtonStyle1}" FontSize="13" Foreground="White" Background="CadetBlue" Content="Cancel" HorizontalAlignment="Right" Grid.Row="2" Width="80" Height="30" VerticalAlignment="Center" Margin="10 0" Click="Cancel_click" IsCancel="True"/>
+        <Button Style="{DynamicResource ButtonStyle1}" FontSize="13" Foreground="White" Background="CadetBlue" Content="Invite" HorizontalAlignment="Left" Grid.Row="2" Width="80" Height="30" VerticalAlignment="Center" Margin="10 0" Click="Invite_click" IsDefault="True"/>
     </Grid>
 </Window>

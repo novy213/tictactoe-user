@@ -23,6 +23,8 @@ namespace tictactoe.models
         public bool Is_password { get; set; }
         [JsonProperty("password")]
         public string? Password { get; set; }
+        [JsonProperty("turn")]
+        public int? Turn { get; set; }
         [JsonProperty("user_name")]
         public string User_name { get; set; }
         [JsonProperty("user_last_name")]
