@@ -37,8 +37,8 @@ namespace tictactoe
         }
         public async void SetAppStateLogin()
         {
-            //refreshTherad = new Thread(RefreshApp);
-            //refreshTherad.Start();
+            refreshThread = new Thread(RefreshApp);
+            refreshThread.Start();
             LoginGrid.Visibility = Visibility.Collapsed;
             GamesGrid.Visibility = Visibility.Visible;
             GetGamesResponse res = await Api.GetGamesAsync();
@@ -50,7 +50,7 @@ namespace tictactoe
         {
             LoginGrid.Visibility = Visibility.Visible;
             GamesGrid.Visibility = Visibility.Collapsed;
-            //TerminateThread(refreshTherad);
+            TerminateThread(refreshThread);
         }
         private async void Login_click(object sender, RoutedEventArgs e)
         {
@@ -113,6 +113,7 @@ namespace tictactoe
             if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
             else
             {
+                TerminateThread(refreshThread);
                 WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
                 GamesGrid.Visibility = Visibility.Collapsed;
                 GameGrid.Visibility = Visibility.Visible;
@@ -121,13 +122,16 @@ namespace tictactoe
                 {
                     myTurn = true;
                     character = "X";
+                    startText.Text = "X";
                 }
                 else
                 {
                     myTurn = false;
                     character = "O";
+                    startText.Text = "O";
                 }
-                gameThread.Start();
+                gameThread = new Thread(GameThread);
+                gameThread.Start();               
             }
         }
 
@@ -201,6 +205,7 @@ namespace tictactoe
         private async void SetGame()
         {
             TerminateThread(waitingForOpponent);
+            TerminateThread(refreshThread);
             WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
             GamesGrid.Visibility = Visibility.Collapsed;
             GameGrid.Visibility = Visibility.Visible;
@@ -215,58 +220,136 @@ namespace tictactoe
                 myTurn = false;
                 character = "O";
             }
+            gameThread = new Thread(GameThread);
             gameThread.Start();
         }
         private async void GameThread()
         {
-            ReciveMoveResponse res = await Api.ReciveMovesAsync();
-            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
-            else
+            try
             {
-                if (res.Moves[res.Moves.Count-1].player_id != Settings.Default.user_id)
+                while (true)
                 {
-                    myTurn=true;
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    _ = Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        ReciveMoveResponse res = await Api.ReciveMovesAsync();
+                        if (!res.Error)
+                        {
+                            if (res.Moves!=null && res.Moves[res.Moves.Count - 1].player_id != Settings.Default.user_id)
+                            {
+                                myTurn = true;
+                            }
+                            UpdateGame(res);
+                        }
+                        if(res.Message=="Winner is O" || res.Message== "Winner is X")
+                        {
+                            TerminateThread(gameThread);
+                            MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                            APIResponse res2 = await Api.AbortGameAsync();
+                            refreshThread = new Thread(RefreshApp);
+                            refreshThread.Start();
+                            GameGrid.Visibility = Visibility.Collapsed;
+                            GamesGrid.Visibility = Visibility.Visible;
+                            ResetGame();
+                        }
+                        else if(res.Message== "this game does not exist")
+                        {                           
+                            TerminateThread(gameThread);
+                            refreshThread = new Thread(RefreshApp);
+                            refreshThread.Start();
+                            GameGrid.Visibility = Visibility.Collapsed;
+                            GamesGrid.Visibility = Visibility.Visible;
+                            ResetGame();
+                        }                        
+                    }));
                 }
-                UpdateGame(res);
             }
+            catch (ThreadInterruptedException)
+            {
+                Debug.WriteLine("Exiting Refresh thread");
+                return;
+            }            
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            TerminateThread(gameThread);
+            TerminateThread(refreshThread);
+            TerminateThread(waitingForOpponent);
+        }
+
         private void UpdateGame(ReciveMoveResponse res)
         {
-            string localCharacter="X";
-            for(int i = 0; i < res.Moves.Count; i++)
+            if (res.Moves != null)
             {
-                switch (res.Moves[i].move)
+                string localCharacter = "X";
+                for (int i = 0; i < res.Moves.Count; i++)
                 {
-                    case "a1":
-                        a1.Content = localCharacter;
-                        break;
-                    case "a2":
-                        a2.Content = localCharacter;
-                        break;
-                    case "a3":
-                        a3.Content = localCharacter;
-                        break;
-                    case "b1":
-                        b1.Content = localCharacter;
-                        break;
-                    case "b2":
-                        b2.Content = localCharacter;
-                        break;
-                    case "b3":
-                        b3.Content = localCharacter;
-                        break;
-                    case "c1":
-                        c1.Content = localCharacter;
-                        break;
-                    case "c2":
-                        c2.Content = localCharacter;
-                        break;
-                    case "c3":
-                        c3.Content = localCharacter;
-                        break;
+                    switch (res.Moves[i].move)
+                    {
+                        case "a1":
+                            a1.Content = localCharacter;
+                            break;
+                        case "a2":
+                            a2.Content = localCharacter;
+                            break;
+                        case "a3":
+                            a3.Content = localCharacter;
+                            break;
+                        case "b1":
+                            b1.Content = localCharacter;
+                            break;
+                        case "b2":
+                            b2.Content = localCharacter;
+                            break;
+                        case "b3":
+                            b3.Content = localCharacter;
+                            break;
+                        case "c1":
+                            c1.Content = localCharacter;
+                            break;
+                        case "c2":
+                            c2.Content = localCharacter;
+                            break;
+                        case "c3":
+                            c3.Content = localCharacter;
+                            break;
+                    }
+                    if (localCharacter == "X") localCharacter = "O";
+                    else if (localCharacter == "O") localCharacter = "X";
                 }
-                if (localCharacter == "X") localCharacter = "O";
-                else if (localCharacter == "O") localCharacter = "X";
+            }
+        }
+        private void ResetGame()
+        {
+            a1.Content = null;
+            a2.Content = null;
+            a3.Content = null;
+            b1.Content = null;
+            b2.Content = null;
+            b3.Content = null;
+            c1.Content = null;
+            c2.Content = null;
+            c3.Content = null;
+        }
+        private void RefreshApp()
+        {
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    _ = Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        GetGamesResponse getGamesResponse = await Api.GetGamesAsync();
+                        GamesListView.ItemsSource = getGamesResponse.Games;
+                    }));
+                }
+            }
+            catch (ThreadInterruptedException)
+            {
+                Debug.WriteLine("Exiting Refresh thread");
+                return;
             }
         }
     }

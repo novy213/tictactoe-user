@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:tictactoe"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="MainWindow" Height="450" Width="800" Closed="Window_Closed"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
@@ -196,7 +196,7 @@
             <TextBlock Text="Waiting for enemy..." FontSize="60" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White"/>
             <Button Content="Cancel" Width="120" Height="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 50" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="AbortGame_click"/>
         </Grid>
-        <Grid x:Name="GameGrid" Visibility="Visible">
+        <Grid x:Name="GameGrid" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -208,6 +208,7 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="startText"/>
             <Button Content="Resign" Width="120" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="AbortGame_click"/>
             <Button x:Name="a1" Uid="a1" Width="80" Height="40" Grid.Row="1" Click="SendMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
             <Button x:Name="a2" Uid="a2" Width="80" Height="40" Grid.Row="2" Click="SendMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>

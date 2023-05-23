@@ -23,8 +23,8 @@ namespace tictactoe
         private const string API_ENDPOINT_GET_GAME_INFO = "/game/user";
         private const string API_ENDPOINT_ABORT_GAME = "/game/abort";
         private const string API_ENDPOINT_JOIN_GAME = "/game/";
-        private const string API_ENDPOINT_SEND_MOVE = "/game/";
-        private const string API_ENDPOINT_RECIVE_MOVE = "/game/";
+        private const string API_ENDPOINT_SEND_MOVE = "/game/move";
+        private const string API_ENDPOINT_RECIVE_MOVE = "/game/move";
 
         private const int HTTP_STATUS_OK = 200;
         private const int HTTP_STATUS_UNAUTHORIZED = 401;
@@ -33,7 +33,7 @@ namespace tictactoe
         public static async Task<ReciveMoveResponse> ReciveMovesAsync()
         {
             ReciveMoveResponse response;
-            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_RECIVE_MOVE);
+            HttpRequest req = Unirest.get(Settings.Default.url + API_ENDPOINT_RECIVE_MOVE);
             try
             {
                 HttpResponse<String> rawResponse = await MakeRequestAsync(req);
