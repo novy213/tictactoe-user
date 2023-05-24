@@ -107,6 +107,61 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="FocusVisual1">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" SnapsToDevicePixels="true" StrokeThickness="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background1" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border1" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background1" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border1" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background1" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border1" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background1" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border1" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground1" Color="#FF838383"/>
+        <Style x:Key="ToggleButtonStyle1" TargetType="{x:Type ToggleButton}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual1}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background1}"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border CornerRadius="15" x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Button.IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background1}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border1}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background1}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border1}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background1}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border1}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground1}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid Background="LightBlue">
         <Grid x:Name="LoginGrid" Visibility="Collapsed">
@@ -152,7 +207,7 @@
             <Button Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Back" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="BackRegister_click"/>
             <Button IsDefault="True" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Register" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="Register_click"/>
         </Grid>
-        <Grid x:Name="GamesGrid" Visibility="Collapsed">
+        <Grid x:Name="GamesGrid" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -164,7 +219,65 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Button Content="Logout" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="Logout_click"/>
-            <Button Content="Create new game" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="CreateNewGame_click"/>
+            <Button Content="Create new game" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="40" Style="{DynamicResource ButtonStyle1}" Grid.ColumnSpan="2" FontSize="16" Foreground="White" Background="CadetBlue" Click="CreateNewGame_click"/>
+            <ToggleButton Style="{DynamicResource ToggleButtonStyle1}" x:Name="InviteButton" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Invites" Width="120" Height="40" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Popup Name="InvitePopup" StaysOpen="False"   
+                    PlacementTarget = "{Binding ElementName = InviteButton}"
+                    IsOpen = "{Binding ElementName=InviteButton, Path=IsChecked, Mode=OneWay}"
+                    AllowsTransparency = "True" PopupAnimation = "Slide" Closed="InvitePopup_Closed">
+                <ListBox x:Name="InvitesListBox" Height="150">
+                    <ListBox.Template>
+                        <ControlTemplate>
+                            <Border BorderThickness="1" BorderBrush="Black" Background="SkyBlue" Padding="5">
+                                <ScrollViewer>
+                                    <StackPanel>
+                                        <Grid>
+                                            <TextBlock x:Name="PriorityTextBlock" Text="Game invitations" FontWeight="Bold"/>
+                                        </Grid>
+                                        <ItemsPresenter></ItemsPresenter>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </ListBox.Template>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Button Grid.Column="0" Margin="5 0" Background="Transparent" BorderThickness="0" Uid="{Binding game_id}" Click="AcceptGame_click">
+                                    <Image Source="/img/accept.png" Width="12"/>
+                                </Button>
+                                <Button Grid.Column="1" Margin="5 0" Background="Transparent" BorderThickness="0" Uid="{Binding game_id}" Click="RejectGame_click">
+                                    <Image Source="/img/reject.png" Width="12"/>
+                                </Button>
+                                <TextBlock Grid.Column="2" Text="{Binding name}" FontWeight="Bold"/>
+                                <TextBlock Grid.Column="3" Grid.Row="0">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}   {0} {1}">
+                                            <Binding Path="user_name" />
+                                            <Binding Path="user_last_name" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Popup>
+            
             <ListView x:Name="GamesListView" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="3" Margin="10" d:ItemsSource="{d:SampleData ItemCount=5}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
@@ -181,13 +294,23 @@
                         <GridViewColumn Width="48">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Is_password}"/>
+                                    <Image Source="/img/password.png" Width="24" Visibility="Collapsed">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Is_password}" Value="true">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding User_name}"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding User_last_name}"/>
+                        <GridViewColumn Width="100" Header="Game name" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Width="100" Header="User name" DisplayMemberBinding="{Binding User_name}"/>
+                        <GridViewColumn Width="100" Header="User last name" DisplayMemberBinding="{Binding User_last_name}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

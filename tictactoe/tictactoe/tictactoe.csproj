@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <None Remove="images\password.png" />
+    <None Remove="img\accept.png" />
+    <None Remove="img\password.png" />
+    <None Remove="img\reject.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +36,14 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="img\accept.png" />
+    <Resource Include="img\password.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\reject.png" />
   </ItemGroup>
 
 </Project>

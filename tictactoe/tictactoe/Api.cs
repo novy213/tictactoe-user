@@ -25,11 +25,75 @@ namespace tictactoe
         private const string API_ENDPOINT_JOIN_GAME = "/game/";
         private const string API_ENDPOINT_SEND_MOVE = "/game/move";
         private const string API_ENDPOINT_RECIVE_MOVE = "/game/move";
+        private const string API_ENDPOINT_GET_INVITES = "/game/invites";
+        private const string API_ENDPOINT_REJECT_GAME = "/game/";
 
         private const int HTTP_STATUS_OK = 200;
         private const int HTTP_STATUS_UNAUTHORIZED = 401;
 
         private static String Message;
+        public static async Task<APIResponse> RejectGameAsync(string game_id)
+        {
+            APIResponse response;
+            HttpRequest req = Unirest.delete(Settings.Default.url + API_ENDPOINT_REJECT_GAME + game_id);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new APIResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<APIResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new APIResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
+        public static async Task<GetInvitesResponse> GetInvitesAsync()
+        {
+            GetInvitesResponse response;
+            HttpRequest req = Unirest.get(Settings.Default.url + API_ENDPOINT_GET_INVITES);
+            try
+            {
+                HttpResponse<String> rawResponse = await MakeRequestAsync(req);
+                if (rawResponse == null)
+                {
+                    response = new GetInvitesResponse
+                    {
+                        Error = true,
+                        Message = Message
+                    };
+                }
+                else
+                {
+                    response = JsonConvert.DeserializeObject<GetInvitesResponse>(rawResponse.Body);
+                }
+
+            }
+            catch (Exception)
+            {
+                response = new GetInvitesResponse
+                {
+                    Error = true,
+                    Message = "Unable to deserialize response from remote server"
+                };
+            }
+            return response;
+        }
         public static async Task<ReciveMoveResponse> ReciveMovesAsync()
         {
             ReciveMoveResponse response;
@@ -96,10 +160,11 @@ namespace tictactoe
             }
             return response;
         }
-        public static async Task<APIResponse> JoinGameAsync(int GameId)
+        public static async Task<APIResponse> JoinGameAsync(int GameId, string password = "")
         {
             APIResponse response;
-            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_JOIN_GAME + GameId);
+            JoinGameRequest request = new JoinGameRequest { Password = password };
+            HttpRequest req = Unirest.post(Settings.Default.url + API_ENDPOINT_JOIN_GAME + GameId).body<JoinGameRequest>(request);
             try
             {
                 HttpResponse<String> rawResponse = await MakeRequestAsync(req);

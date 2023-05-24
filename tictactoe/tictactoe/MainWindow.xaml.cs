@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -26,7 +27,7 @@ namespace tictactoe
     public partial class MainWindow : Window
     {
 
-        Thread refreshThread, waitingForOpponent, gameThread;
+        Thread refreshThread, waitingForOpponent, gameThread, invitesThread;
         string character;
         bool myTurn = false;
         public MainWindow()
@@ -45,12 +46,41 @@ namespace tictactoe
             GamesListView.ItemsSource = res.Games;
             waitingForOpponent = new Thread(WaitingForOpponent);
             gameThread = new Thread(GameThread);
+            invitesThread = new Thread(GetInvites);
+            invitesThread.Start();
+        }
+        private void GetInvites()
+        {
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    _ = Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        GetInvitesResponse res = await Api.GetInvitesAsync();
+                        if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                        else
+                        {
+                            InvitesListBox.ItemsSource = res.invites;
+                        }
+                    }));
+                }
+            }
+            catch (ThreadInterruptedException)
+            {
+                Debug.WriteLine("Exiting Refresh thread");
+                return;
+            }            
         }
         public void SetAppStateLogout()
         {
             LoginGrid.Visibility = Visibility.Visible;
             GamesGrid.Visibility = Visibility.Collapsed;
+            TerminateThread(gameThread);
             TerminateThread(refreshThread);
+            TerminateThread(waitingForOpponent);
+            TerminateThread(invitesThread);
         }
         private async void Login_click(object sender, RoutedEventArgs e)
         {
@@ -100,38 +130,84 @@ namespace tictactoe
         {
             if (thread != null)
             {
-                thread.Interrupt();
-                thread.Join();
+                try
+                {
+                    thread.Interrupt();
+                    thread.Join();
+                }
+                catch { }
             }
         }
-
+        private void InvitePopup_Closed(object sender, EventArgs e)
+        {
+            if (InviteButton != Mouse.DirectlyOver)
+                InviteButton.IsChecked = false;
+        }
         private async void ListViewItem_Click(object sender, MouseButtonEventArgs e)
         {
             var clickedItem = (ListViewItem)sender;
             Game data = clickedItem.Content as Game;
-            APIResponse res = await Api.JoinGameAsync(data.Id);
-            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
-            else
+            if (!data.Is_password)
             {
-                TerminateThread(refreshThread);
-                WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
-                GamesGrid.Visibility = Visibility.Collapsed;
-                GameGrid.Visibility = Visibility.Visible;
-                GetGameInfoResponse res2 = await Api.GetGameInfoAsync();
-                if (res2.Game.Turn == Settings.Default.user_id)
-                {
-                    myTurn = true;
-                    character = "X";
-                    startText.Text = "X";
-                }
+                APIResponse res = await Api.JoinGameAsync(data.Id);
+                if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
                 else
                 {
-                    myTurn = false;
-                    character = "O";
-                    startText.Text = "O";
+                    TerminateThread(gameThread);
+                    TerminateThread(refreshThread);
+                    TerminateThread(waitingForOpponent);
+                    WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
+                    GamesGrid.Visibility = Visibility.Collapsed;
+                    GameGrid.Visibility = Visibility.Visible;
+                    GetGameInfoResponse res2 = await Api.GetGameInfoAsync();
+                    if (res2.Game.Turn == Settings.Default.user_id)
+                    {
+                        myTurn = true;
+                        character = "X";
+                        startText.Text = "X";
+                    }
+                    else
+                    {
+                        myTurn = false;
+                        character = "O";
+                        startText.Text = "O";
+                    }
+                    gameThread = new Thread(GameThread);
+                    gameThread.Start();
                 }
-                gameThread = new Thread(GameThread);
-                gameThread.Start();               
+            }
+            else
+            {
+                EnterPassword enterPassword = new EnterPassword { Owner = this };
+                if (enterPassword.ShowDialog() == true)
+                {
+                    APIResponse res = await Api.JoinGameAsync(data.Id, enterPassword.Password.Text);
+                    if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                    else
+                    {
+                        TerminateThread(gameThread);
+                        TerminateThread(refreshThread);
+                        TerminateThread(waitingForOpponent);
+                        WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
+                        GamesGrid.Visibility = Visibility.Collapsed;
+                        GameGrid.Visibility = Visibility.Visible;
+                        GetGameInfoResponse res2 = await Api.GetGameInfoAsync();
+                        if (res2.Game.Turn == Settings.Default.user_id)
+                        {
+                            myTurn = true;
+                            character = "X";
+                            startText.Text = "X";
+                        }
+                        else
+                        {
+                            myTurn = false;
+                            character = "O";
+                            startText.Text = "O";
+                        }
+                        gameThread = new Thread(GameThread);
+                        gameThread.Start();
+                    }
+                }
             }
         }
 
@@ -146,6 +222,10 @@ namespace tictactoe
                 {
                     WaitingForEnemyGrid.Visibility = Visibility.Visible;
                     GamesGrid.Visibility = Visibility.Collapsed;
+                    TerminateThread(gameThread);
+                    TerminateThread(refreshThread);
+                    TerminateThread(waitingForOpponent);
+                    waitingForOpponent = new Thread(WaitingForOpponent);
                     waitingForOpponent.Start();
                 } 
             }
@@ -153,13 +233,18 @@ namespace tictactoe
 
         private async void AbortGame_click(object sender, RoutedEventArgs e)
         {
+            TerminateThread(gameThread);
+            TerminateThread(refreshThread);
+            TerminateThread(waitingForOpponent);
             APIResponse res = await Api.AbortGameAsync();
             if(res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
             else
             {
                 WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
                 GamesGrid.Visibility = Visibility.Visible;
-                GameGrid.Visibility = Visibility.Collapsed;
+                GameGrid.Visibility = Visibility.Collapsed;                
+                refreshThread = new Thread(RefreshApp);
+                refreshThread.Start();
             }
         }
 
@@ -173,9 +258,24 @@ namespace tictactoe
                     _ = Dispatcher.BeginInvoke(new Action(async () =>
                     {
                         GetGameInfoResponse res = await Api.GetGameInfoAsync();
-                        if (res.Game.Enemy_id != null)
+                        if (res.Game != null)
                         {
-                            SetGame();                            
+                            if (res.Game.Enemy_id != null)
+                            {
+                                SetGame();
+                            }
+                        }
+                        else
+                        {
+                            TerminateThread(gameThread);
+                            TerminateThread(refreshThread);
+                            TerminateThread(waitingForOpponent);
+                            refreshThread = new Thread(RefreshApp);
+                            refreshThread.Start();
+                            GameGrid.Visibility = Visibility.Collapsed;
+                            WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
+                            GamesGrid.Visibility = Visibility.Visible;
+                            ResetGame();
                         }
                     }));
                 }
@@ -204,8 +304,9 @@ namespace tictactoe
 
         private async void SetGame()
         {
-            TerminateThread(waitingForOpponent);
+            TerminateThread(gameThread);
             TerminateThread(refreshThread);
+            TerminateThread(waitingForOpponent);
             WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
             GamesGrid.Visibility = Visibility.Collapsed;
             GameGrid.Visibility = Visibility.Visible;
@@ -233,34 +334,41 @@ namespace tictactoe
                     _ = Dispatcher.BeginInvoke(new Action(async () =>
                     {
                         ReciveMoveResponse res = await Api.ReciveMovesAsync();
-                        if (!res.Error)
+                        if (res != null)
                         {
-                            if (res.Moves!=null && res.Moves[res.Moves.Count - 1].player_id != Settings.Default.user_id)
+                            if (!res.Error)
                             {
-                                myTurn = true;
+                                if (res.Moves != null && res.Moves[res.Moves.Count - 1].player_id != Settings.Default.user_id)
+                                {
+                                    myTurn = true;
+                                }
+                                UpdateGame(res);
                             }
-                            UpdateGame(res);
+                            if (res.Message == "Winner is O" || res.Message == "Winner is X" || res.Message == "Draw")
+                            {
+                                TerminateThread(gameThread);
+                                TerminateThread(refreshThread);
+                                TerminateThread(waitingForOpponent);
+                                MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                                APIResponse res2 = await Api.AbortGameAsync();
+                                refreshThread = new Thread(RefreshApp);
+                                refreshThread.Start();
+                                GameGrid.Visibility = Visibility.Collapsed;
+                                GamesGrid.Visibility = Visibility.Visible;
+                                ResetGame();
+                            }
+                            else if (res.Message == "this game does not exist")
+                            {
+                                TerminateThread(gameThread);
+                                TerminateThread(refreshThread);
+                                TerminateThread(waitingForOpponent);
+                                refreshThread = new Thread(RefreshApp);
+                                refreshThread.Start();
+                                GameGrid.Visibility = Visibility.Collapsed;
+                                GamesGrid.Visibility = Visibility.Visible;
+                                ResetGame();
+                            }
                         }
-                        if(res.Message=="Winner is O" || res.Message== "Winner is X")
-                        {
-                            TerminateThread(gameThread);
-                            MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
-                            APIResponse res2 = await Api.AbortGameAsync();
-                            refreshThread = new Thread(RefreshApp);
-                            refreshThread.Start();
-                            GameGrid.Visibility = Visibility.Collapsed;
-                            GamesGrid.Visibility = Visibility.Visible;
-                            ResetGame();
-                        }
-                        else if(res.Message== "this game does not exist")
-                        {                           
-                            TerminateThread(gameThread);
-                            refreshThread = new Thread(RefreshApp);
-                            refreshThread.Start();
-                            GameGrid.Visibility = Visibility.Collapsed;
-                            GamesGrid.Visibility = Visibility.Visible;
-                            ResetGame();
-                        }                        
                     }));
                 }
             }
@@ -276,6 +384,46 @@ namespace tictactoe
             TerminateThread(gameThread);
             TerminateThread(refreshThread);
             TerminateThread(waitingForOpponent);
+            TerminateThread(invitesThread);
+        }
+
+        private async void RejectGame_click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            APIResponse res = await Api.RejectGameAsync(btn.Uid);
+            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+        }
+
+        private async void AcceptGame_click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            int game_id = int.Parse(btn.Uid);
+            APIResponse res = await Api.JoinGameAsync(game_id);
+            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+            else
+            {
+                TerminateThread(gameThread);
+                TerminateThread(refreshThread);
+                TerminateThread(waitingForOpponent);
+                WaitingForEnemyGrid.Visibility = Visibility.Collapsed;
+                GamesGrid.Visibility = Visibility.Collapsed;
+                GameGrid.Visibility = Visibility.Visible;
+                GetGameInfoResponse res2 = await Api.GetGameInfoAsync();
+                if (res2.Game.Turn == Settings.Default.user_id)
+                {
+                    myTurn = true;
+                    character = "X";
+                    startText.Text = "X";
+                }
+                else
+                {
+                    myTurn = false;
+                    character = "O";
+                    startText.Text = "O";
+                }
+                gameThread = new Thread(GameThread);
+                gameThread.Start();
+            }
         }
 
         private void UpdateGame(ReciveMoveResponse res)

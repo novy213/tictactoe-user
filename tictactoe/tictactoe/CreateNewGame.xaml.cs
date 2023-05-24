@@ -34,6 +34,12 @@ namespace tictactoe
             {
                 invitedUser = invitePlayer.PlayerListView.SelectedItem as User;
                 InvitedPlayer.Text = invitedUser.Name + " " + invitedUser.Last_name;
+                CreateGameIsPassword.Visibility = Visibility.Collapsed;
+                CreateGamePassword.Visibility = Visibility.Collapsed;
+                CreateGamePassword.Text = "";
+                CreateGameIsPassword.IsChecked = false;
+                IsPasswordText.Visibility = Visibility.Collapsed;
+                GamePas.Visibility = Visibility.Collapsed;
             }
         }
 
