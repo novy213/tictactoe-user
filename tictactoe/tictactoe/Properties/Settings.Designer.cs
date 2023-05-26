@@ -25,7 +25,7 @@ namespace tictactoe.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/basic/web")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://api.jakubsolarek.pl/tictactoe/tictactoe-server/basic/web")]
         public string url {
             get {
                 return ((string)(this["url"]));

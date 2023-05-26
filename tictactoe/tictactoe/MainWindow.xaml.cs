@@ -59,10 +59,14 @@ namespace tictactoe
                     _ = Dispatcher.BeginInvoke(new Action(async () =>
                     {
                         GetInvitesResponse res = await Api.GetInvitesAsync();
-                        if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
-                        else
+                        if (res != null)
                         {
-                            InvitesListBox.ItemsSource = res.invites;
+                            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                            else
+                            {
+                                InvitesListBox.ItemsSource = res.invites;
+                                InviteButton.Content = "Invites: " + res.invites.Count.ToString();
+                            }
                         }
                     }));
                 }
@@ -164,13 +168,13 @@ namespace tictactoe
                     {
                         myTurn = true;
                         character = "X";
-                        startText.Text = "X";
+                        startText.Text = "You are: X";
                     }
                     else
                     {
                         myTurn = false;
                         character = "O";
-                        startText.Text = "O";
+                        startText.Text = "You are: O";
                     }
                     gameThread = new Thread(GameThread);
                     gameThread.Start();
@@ -196,13 +200,13 @@ namespace tictactoe
                         {
                             myTurn = true;
                             character = "X";
-                            startText.Text = "X";
+                            startText.Text = "You are: X";
                         }
                         else
                         {
                             myTurn = false;
                             character = "O";
-                            startText.Text = "O";
+                            startText.Text = "You are: O";
                         }
                         gameThread = new Thread(GameThread);
                         gameThread.Start();
@@ -266,10 +270,11 @@ namespace tictactoe
                             }
                         }
                         else
-                        {
+                        {                            
                             TerminateThread(gameThread);
                             TerminateThread(refreshThread);
                             TerminateThread(waitingForOpponent);
+                            MessageBox.Show("This game has been rejected", "Error", MessageBoxButton.OK);
                             refreshThread = new Thread(RefreshApp);
                             refreshThread.Start();
                             GameGrid.Visibility = Visibility.Collapsed;
@@ -315,11 +320,13 @@ namespace tictactoe
             {
                 myTurn = true;
                 character = "X";
+                startText.Text = "You are: X";
             }
             else
             {
                 myTurn = false;
                 character = "O";
+                startText.Text = "You are: O";                
             }
             gameThread = new Thread(GameThread);
             gameThread.Start();
@@ -348,9 +355,9 @@ namespace tictactoe
                             {
                                 TerminateThread(gameThread);
                                 TerminateThread(refreshThread);
-                                TerminateThread(waitingForOpponent);
-                                MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                                TerminateThread(waitingForOpponent);                                
                                 APIResponse res2 = await Api.AbortGameAsync();
+                                MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
                                 refreshThread = new Thread(RefreshApp);
                                 refreshThread.Start();
                                 GameGrid.Visibility = Visibility.Collapsed;
@@ -362,6 +369,7 @@ namespace tictactoe
                                 TerminateThread(gameThread);
                                 TerminateThread(refreshThread);
                                 TerminateThread(waitingForOpponent);
+                                MessageBox.Show("Your opponent resign", "Error", MessageBoxButton.OK);
                                 refreshThread = new Thread(RefreshApp);
                                 refreshThread.Start();
                                 GameGrid.Visibility = Visibility.Collapsed;
@@ -379,12 +387,13 @@ namespace tictactoe
             }            
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private async void Window_Closed(object sender, EventArgs e)
         {
             TerminateThread(gameThread);
             TerminateThread(refreshThread);
             TerminateThread(waitingForOpponent);
             TerminateThread(invitesThread);
+            APIResponse res = await Api.AbortGameAsync();
         }
 
         private async void RejectGame_click(object sender, RoutedEventArgs e)
@@ -402,6 +411,7 @@ namespace tictactoe
             if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
             else
             {
+                InvitePopup.IsOpen = false;
                 TerminateThread(gameThread);
                 TerminateThread(refreshThread);
                 TerminateThread(waitingForOpponent);
@@ -413,13 +423,13 @@ namespace tictactoe
                 {
                     myTurn = true;
                     character = "X";
-                    startText.Text = "X";
+                    startText.Text = "You are: X";
                 }
                 else
                 {
                     myTurn = false;
                     character = "O";
-                    startText.Text = "O";
+                    startText.Text = "You are: O";
                 }
                 gameThread = new Thread(GameThread);
                 gameThread.Start();

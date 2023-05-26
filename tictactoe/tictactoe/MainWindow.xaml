@@ -207,7 +207,7 @@
             <Button Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Back" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="BackRegister_click"/>
             <Button IsDefault="True" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Register" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="Register_click"/>
         </Grid>
-        <Grid x:Name="GamesGrid" Visibility="Visible">
+        <Grid x:Name="GamesGrid" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -232,7 +232,7 @@
                                 <ScrollViewer>
                                     <StackPanel>
                                         <Grid>
-                                            <TextBlock x:Name="PriorityTextBlock" Text="Game invitations" FontWeight="Bold"/>
+                                            <TextBlock Text="Game invitations" FontWeight="Bold"/>
                                         </Grid>
                                         <ItemsPresenter></ItemsPresenter>
                                     </StackPanel>
@@ -294,12 +294,12 @@
                         <GridViewColumn Width="48">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Image Source="/img/password.png" Width="24" Visibility="Collapsed">
+                                    <Image Width="24">
                                         <Image.Style>
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Is_password}" Value="true">
-                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    <DataTrigger Binding="{Binding Is_password}" Value="True">
+                                                        <Setter Property="Source" Value="/img/password.png"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -331,7 +331,7 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="startText"/>
+            <TextBlock FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="startText"/>
             <Button Content="Resign" Width="120" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="AbortGame_click"/>
             <Button x:Name="a1" Uid="a1" Width="80" Height="40" Grid.Row="1" Click="SendMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
             <Button x:Name="a2" Uid="a2" Width="80" Height="40" Grid.Row="2" Click="SendMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>

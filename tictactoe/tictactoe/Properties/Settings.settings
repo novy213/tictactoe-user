@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="url" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://localhost/basic/web</Value>
+      <Value Profile="(Default)">https://api.jakubsolarek.pl/tictactoe/tictactoe-server/basic/web</Value>
     </Setting>
     <Setting Name="user_id" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
