@@ -207,6 +207,29 @@
             <Button Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Back" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="BackRegister_click"/>
             <Button IsDefault="True" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Register" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="Register_click"/>
         </Grid>
+        <Grid x:Name="SinglePlayerGrid" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Button Content="Resign" Width="120" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="AbortGame_click"/>
+            <Button x:Name="a1s" Uid="a1" Width="80" Height="40" Grid.Row="1" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="a2s" Uid="a2" Width="80" Height="40" Grid.Row="2" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="a3s" Uid="a3" Width="80" Height="40" Grid.Row="3" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="b1s" Uid="b1" Width="80" Height="40" Grid.Row="1" Grid.Column="1" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="b2s" Uid="b2" Width="80" Height="40" Grid.Row="2" Grid.Column="1" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="b3s" Uid="b3" Width="80" Height="40" Grid.Row="3" Grid.Column="1" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="c1s" Uid="c1" Width="80" Height="40" Grid.Row="1" Grid.Column="2" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="c2s" Uid="c2" Width="80" Height="40" Grid.Row="2" Grid.Column="2" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button x:Name="c3s" Uid="c3" Width="80" Height="40" Grid.Row="3" Grid.Column="2" Click="SingleplayerMove_click" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue"/>
+        </Grid>
         <Grid x:Name="GamesGrid" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -218,9 +241,10 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Button Content="Logout" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="Logout_click"/>
-            <Button Content="Create new game" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="40" Style="{DynamicResource ButtonStyle1}" Grid.ColumnSpan="2" FontSize="16" Foreground="White" Background="CadetBlue" Click="CreateNewGame_click"/>
-            <ToggleButton Style="{DynamicResource ToggleButtonStyle1}" x:Name="InviteButton" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Invites" Width="120" Height="40" FontSize="16" Foreground="White" Background="CadetBlue"/>
+            <Button Content="Singleplayer" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20 0" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="Singleplayer_click"/>
+            <Button Content="Logout" Grid.Column="1" HorizontalAlignment="Right" Margin="20" VerticalAlignment="Center" Width="120" Height="40" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Click="Logout_click"/>
+            <Button Content="Create new game" HorizontalAlignment="Left" Margin="20 0" VerticalAlignment="Center" Width="160" Height="40" Style="{DynamicResource ButtonStyle1}" Grid.Column="2" FontSize="16" Foreground="White" Background="CadetBlue" Click="CreateNewGame_click"/>
+            <ToggleButton Style="{DynamicResource ToggleButtonStyle1}" x:Name="InviteButton" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20 0" Content="Invites" Width="120" Height="40" FontSize="16" Foreground="White" Background="CadetBlue"/>
             <Popup Name="InvitePopup" StaysOpen="False"   
                     PlacementTarget = "{Binding ElementName = InviteButton}"
                     IsOpen = "{Binding ElementName=InviteButton, Path=IsChecked, Mode=OneWay}"

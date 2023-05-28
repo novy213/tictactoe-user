@@ -436,6 +436,16 @@ namespace tictactoe
             }
         }
 
+        private void Singleplayer_click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SingleplayerMove_click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void UpdateGame(ReciveMoveResponse res)
         {
             if (res.Moves != null)
