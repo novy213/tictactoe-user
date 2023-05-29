@@ -355,16 +355,16 @@ namespace tictactoe
                             {
                                 TerminateThread(gameThread);
                                 TerminateThread(refreshThread);
-                                TerminateThread(waitingForOpponent);                                
-                                APIResponse res2 = await Api.AbortGameAsync();
+                                TerminateThread(waitingForOpponent);                                                                
                                 MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                                APIResponse res2 = await Api.AbortGameAsync();
                                 refreshThread = new Thread(RefreshApp);
                                 refreshThread.Start();
                                 GameGrid.Visibility = Visibility.Collapsed;
                                 GamesGrid.Visibility = Visibility.Visible;
                                 ResetGame();
                             }
-                            else if (res.Message == "this game does not exist")
+                            if (res.Message == "this game does not exist")
                             {
                                 TerminateThread(gameThread);
                                 TerminateThread(refreshThread);

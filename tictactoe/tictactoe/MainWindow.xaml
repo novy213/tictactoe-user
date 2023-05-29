@@ -207,7 +207,7 @@
             <Button Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Back" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="BackRegister_click"/>
             <Button IsDefault="True" Style="{DynamicResource ButtonStyle1}" FontSize="16" Foreground="White" Background="CadetBlue" Content="Register" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" Width="120" Height="40" Margin="10 0" Click="Register_click"/>
         </Grid>
-        <Grid x:Name="SinglePlayerGrid" Visibility="Visible">
+        <Grid x:Name="SinglePlayerGrid" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
