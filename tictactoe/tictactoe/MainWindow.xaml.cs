@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
@@ -58,16 +59,20 @@ namespace tictactoe
                     Thread.Sleep(TimeSpan.FromSeconds(1));
                     _ = Dispatcher.BeginInvoke(new Action(async () =>
                     {
-                        GetInvitesResponse res = await Api.GetInvitesAsync();
-                        if (res != null)
+                        try
                         {
-                            if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
-                            else
+                            GetInvitesResponse res = await Api.GetInvitesAsync();
+                            if (res != null)
                             {
-                                InvitesListBox.ItemsSource = res.invites;
-                                InviteButton.Content = "Invites: " + res.invites.Count.ToString();
+                                if (res.Error) MessageBox.Show(res.Message, "Error", MessageBoxButton.OK);
+                                else
+                                {
+                                    InvitesListBox.ItemsSource = res.invites;
+                                    InviteButton.Content = "Invites: " + res.invites.Count.ToString();
+                                }
                             }
                         }
+                        catch { }
                     }));
                 }
             }
@@ -249,6 +254,7 @@ namespace tictactoe
                 GameGrid.Visibility = Visibility.Collapsed;                
                 refreshThread = new Thread(RefreshApp);
                 refreshThread.Start();
+                ResetGame();
             }
         }
 
@@ -438,12 +444,121 @@ namespace tictactoe
 
         private void Singleplayer_click(object sender, RoutedEventArgs e)
         {
+            SinglePlayerGrid.Visibility = Visibility.Visible;
+            GamesGrid.Visibility = Visibility.Collapsed;
+            Random r = new Random();
+            int turn = r.Next(0, 2);
+            if (turn == 1)
+            {
+                turnSinglePlayer = true;
+                characterSinglePlayer = "X";
+                characterComputer = "O";
+            }
+            else if(turn == 0)
+            {
+                turnSinglePlayer = false;
+                characterSinglePlayer = "O";
+                characterComputer = "X";
+                ComputerMove();
+            }
+            SinglePlayerTurn.Text = characterSinglePlayer;
 
         }
-
+        private void ComputerMove()
+        {
+            Random r = new Random();
+            int field = r.Next(0, 10);
+            while (IsFree(field))
+            {
+                field = r.Next(0, 10);
+            } 
+            switch (field)
+            {
+                case 0:
+                    a1s.Content = characterComputer;
+                    break;
+                case 1:
+                    a2s.Content = characterComputer;
+                    break;
+                case 2:
+                    a3s.Content = characterComputer;
+                    break;
+                case 3:
+                    b1s.Content = characterComputer;
+                    break;
+                case 4:
+                    b2s.Content = characterComputer;
+                    break;
+                case 5:
+                    b3s.Content = characterComputer;
+                    break;
+                case 6:
+                    c1s.Content = characterComputer;
+                    break;
+                case 7:
+                    c2s.Content = characterComputer;
+                    break;
+                case 8:
+                    c3s.Content = characterComputer;
+                    break;
+            }
+        }
+        bool turnSinglePlayer= false;
+        string characterSinglePlayer;
+        string characterComputer;
         private void SingleplayerMove_click(object sender, RoutedEventArgs e)
         {
+            Button btn = sender as Button;
+            if (btn.Content!="")
+            {
+                btn.Content = characterSinglePlayer;
+                turnSinglePlayer = false;
+                ComputerMove();
+            }
+            else
+            {
+                MessageBox.Show("Its not your turn", "Error", MessageBoxButton.OK);
+            }           
+        }
+        private bool IsFree(int field)
+        {
+            switch (field){
+                case 0:
+                    if (a1s.Content != "") return false;
+                    break;
+                case 1:
+                    if (a2s.Content != "") return false;
+                    break;
+                case 2:
+                    if (a3s.Content != "") return false;
+                    break;
+                case 3:
+                    if (b1s.Content != "") return false;
+                    break;
+                case 4:
+                    if (b2s.Content != "") return false;
+                    break;
+                case 5:
+                    if (b3s.Content != "") return false;
+                    break;
+                case 6:
+                    if (c1s.Content != "") return false;
+                    break;
+                case 7:
+                    if (c2s.Content != "") return false;
+                    break;
+                case 8:
+                    if (c3s.Content != "") return false;
+                    break;
+            }
+            return true;
+        }
 
+        private void BackSingle_click(object sender, RoutedEventArgs e)
+        {
+            SinglePlayerGrid.Visibility = Visibility.Collapsed;
+            GamesGrid.Visibility = Visibility.Visible;
+            ResetGame();
         }
 
         private void UpdateGame(ReciveMoveResponse res)
@@ -499,6 +614,15 @@ namespace tictactoe
             c1.Content = null;
             c2.Content = null;
             c3.Content = null;
+            a1s.Content = null;
+            a2s.Content = null;
+            a3s.Content = null;
+            b1s.Content = null;
+            b2s.Content = null;
+            b3s.Content = null;
+            c1s.Content = null;
+            c2s.Content = null;
+            c3s.Content = null;
         }
         private void RefreshApp()
         {
